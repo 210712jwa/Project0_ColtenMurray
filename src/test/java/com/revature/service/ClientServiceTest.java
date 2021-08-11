@@ -40,13 +40,15 @@ public class ClientServiceTest {
 		this.clientService = new ClientService(clientDao, accountDao); // Here I am injecting the mocked object into a ClientService object
 	}
 
-	// Positive test case / "happy path"
+	/*
+	 * getAllClients
+	 */
 	@Test
 	public void test_getAllClients_positive() throws DatabaseException, SQLException {
 		// Because we're not using a real ClientDAO object and instead a mocked ClientDAO, 
 		// we need to actually specify what we want the mocked ClientDAO to return whenever we invoke the clientDao.getAllClients() method
 		List<Client> mockReturnValues = new ArrayList<>();
-		mockReturnValues.add(new Client(1, "Black Pearlssss", 40));
+		mockReturnValues.add(new Client(1, "Black Pearl", 40));
 		mockReturnValues.add(new Client(2, "Royal Fortune", 10));
 		when(clientDao.getAllClients()).thenReturn(mockReturnValues);
 		
@@ -67,7 +69,7 @@ public class ClientServiceTest {
 		
 		// expected = what we expect for the clients List to contain
 		List<Client> expected = new ArrayList<>();
-		Client s1 = new Client(1, "Black Pearlssss", 40);
+		Client s1 = new Client(1, "Black Pearl", 40);
 		s1.setAccounts(blackPearlAccounts);
 		Client s2 = new Client(2, "Royal Fortune", 10);
 		s2.setAccounts(royalFortuneAccounts);
@@ -97,11 +99,10 @@ public class ClientServiceTest {
 		
 	}
 	
-//	@Test(expected = BadParameterException.class)
-//	public void test_getClientById_idStringIsNotAnInt() throws DatabaseException, ClientNotFoundException, BadParameterException {
-//		clientService.getClientById("asdfsdf");
-//	}
-	
+
+	/*
+	 * getClientById
+	 */
 	@Test
 	public void test_getClientById_idStringIsNotAnInt() throws DatabaseException, ClientNotFoundException {
 		try {
@@ -302,6 +303,27 @@ public class ClientServiceTest {
 		
 		clientService.editClient("10", dto);
 	}
+	
+	@Test
+	public void test_deleteClient_clientDoesNotExist() throws DatabaseException, BadParameterException {
+		
+		try {
+			clientService.deleteClient("1000");
+			
+			fail();
+		} catch (ClientNotFoundException e) {
+			assertEquals("Trying to delete client with an id of 1000, but it does not exist", e.getMessage());
+		}
+		
+	}
+	
+	@Test(expected = BadParameterException.class)
+	public void test_deleteClient_invalidId() throws DatabaseException, ClientNotFoundException, BadParameterException {
+		
+		
+		clientService.deleteClient("abc");
+	}
+	
 	
 	/*
 	 * Exercise: Create tests for DeleteClient and have full test coverage
